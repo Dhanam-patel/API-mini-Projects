@@ -50,11 +50,6 @@ python -m venv .venv
 
 3. Install dependencies for a specific project before running that project (instructions below). Each project typically includes its own `requirements.txt`.
 
-Notes:
-
-- Replace `Dhanam-patel` with your GitHub user or use your fork/clone URL.
-- If you prefer virtualenv/conda, use those instead.
-
 ---
 
 ## Projects
