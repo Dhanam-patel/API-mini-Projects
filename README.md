@@ -52,7 +52,7 @@ python -m venv .venv
 
 Notes:
 
-- Replace `<your-username>` with your GitHub user or use your fork/clone URL.
+- Replace `Dhanam-patel` with your GitHub user or use your fork/clone URL.
 - If you prefer virtualenv/conda, use those instead.
 
 ---
