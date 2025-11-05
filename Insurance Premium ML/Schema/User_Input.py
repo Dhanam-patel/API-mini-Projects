@@ -1,15 +1,6 @@
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_validator
 from typing import Literal, Annotated  
-from fastapi.responses import JSONResponse
-from fastapi import FastAPI, HTTPException
-import pandas as pd
-import pickle
-
-app = FastAPI()
-
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
-
+from config.City_Tier import Tier_1, Tier_2
 class InsuranceData(BaseModel):
     age: Annotated[int, Field(..., gt=0, description="Age of the individual")]
     weight: Annotated[float, Field(..., gt=0, description="Weight in kilograms")]
@@ -20,6 +11,18 @@ class InsuranceData(BaseModel):
     occupation: Annotated[Literal['retired', 'freelancer', 'student', 'government_job',
        'business_owner', 'unemployed', 'private_job'], Field(..., description="Occupation of the individual")]
     
+    @field_validator('city')
+    @classmethod
+    def validate_city(cls, value):
+        return value.title()
+    
+    @field_validator('occupation', mode='before')
+    @classmethod
+    def occupation_validator(cls, value): 
+        lowercased_value = value.lower()
+        return lowercased_value
+
+
     @computed_field()
     @property
     def bmi(self) -> float:
@@ -49,34 +52,9 @@ class InsuranceData(BaseModel):
     @computed_field()
     @property
     def city_tier(self) -> int:
-        Tier_1 = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune']
-        Tier_2 = [
-        "Jaipur", "Chandigarh", "Indore", "Lucknow", "Patna", "Ranchi", "Visakhapatnam", "Coimbatore",
-        "Bhopal", "Nagpur", "Vadodara", "Surat", "Rajkot", "Jodhpur", "Raipur", "Amritsar", "Varanasi",
-        "Agra", "Dehradun", "Mysore", "Jabalpur", "Guwahati", "Thiruvananthapuram", "Ludhiana", "Nashik",
-        "Allahabad", "Udaipur", "Aurangabad", "Hubli", "Belgaum", "Salem", "Vijayawada", "Tiruchirappalli",
-        "Bhavnagar", "Gwalior", "Dhanbad", "Bareilly", "Aligarh", "Gaya", "Kozhikode", "Warangal",
-        "Kolhapur", "Bilaspur", "Jalandhar", "Noida", "Guntur", "Asansol", "Siliguri"
-        ]
-        
         if self.city in Tier_1:
             return 1
         elif self.city in Tier_2:
             return 2
         else:
             return 3
-
-@app.post("/predict")   
-def predict_premium_category(data: InsuranceData):
-    input_df = pd.DataFrame([{
-        "bmi": data.bmi,
-        "age_group": data.age_group,
-        "Life_risk": data.Life_risk,
-        "city_tier": data.city_tier,
-        "income_lpa": data.income_lpa,
-        "occupation": data.occupation,  
-        
-    }])
-
-    prediction = model.predict(input_df)[0]
-    return JSONResponse(status_code=200, content={"predicted_premium_category": prediction})
