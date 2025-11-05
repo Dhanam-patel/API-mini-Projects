@@ -37,7 +37,7 @@ These steps are written for Windows PowerShell (your default shell). They are co
 1. Clone the repository:
 
 ```powershell
-git clone https://github.com/<your-username>/API-mini-Projects.git
+git clone https://github.com/Dhanam-patel/API-mini-Projects.git
 cd "API-mini-Projects"
 ```
 
